@@ -7,6 +7,7 @@
 #include <time.h>
 #include <windows.h>
 #include <process.h>
+#include <curses.h>
 
 typedef struct Snake
 {
@@ -15,5 +16,6 @@ typedef struct Snake
 
 int main(int argc , char **argv)
 {
+    NCURSES_CXX_MAIN(argc,argv);
     return 0;
 }

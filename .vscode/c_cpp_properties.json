@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": ["${default}", "${workspaceFolder}/ncurses-1.0.0/C"],
+      "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+      "windowsSdkVersion": "10.0.22000.0",
+      "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
+}
