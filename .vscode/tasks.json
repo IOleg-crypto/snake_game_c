@@ -18,7 +18,7 @@
         "D:/gitnext/snake_game_c/main.exe",
         "-L",
         "C:/msys64/mingw64/lib",
-        "-lncurses",
+        "-lncurses"
       ],
       "group": {
         "kind": "build",
@@ -26,6 +26,24 @@
       },
       "problemMatcher": ["$gcc"],
       "detail": "Generated task by user."
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc.exe сборка активного файла",
+      "command": "C:/msys64/mingw64/bin/gcc.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
+      "options": {
+        "cwd": "C:/msys64/mingw64/bin"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "detail": "компилятор: C:/msys64/mingw64/bin/gcc.exe"
     }
   ]
 }
