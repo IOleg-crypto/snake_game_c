@@ -2,17 +2,30 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "echo",
+      "label": "Build Snake Game",
       "type": "shell",
-      "command": "echo Hello",
       "args": [
-         "-g",
-         "-g",
-         "${file}",
-         "-o",
-         "${fileDirname}/${fileBasenameNoExtension}",
-         "-lncurses"
-      ]
+        "/c",
+        "C:\\msys64\\mingw64\\bin\\gcc.exe",
+        "-fdiagnostics-color=always",
+        "-g",
+        "-I",
+        "C:/msys64/mingw64/include",
+        "-I",
+        "C:/msys64/mingw64/include/ncurses",
+        "D:/gitnext/snake_game_c/main.c",
+        "-o",
+        "D:/gitnext/snake_game_c/main.exe",
+        "-L",
+        "C:/msys64/mingw64/lib",
+        "-lncurses",
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Generated task by user."
     }
   ]
 }

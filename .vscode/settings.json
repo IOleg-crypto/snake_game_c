@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "*.html": "html",
-    "time.h": "c"
+    "time.h": "c",
+    "process.h": "c"
   }
 }

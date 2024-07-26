@@ -2,10 +2,16 @@
   "configurations": [
     {
       "name": "Win32",
-      "includePath": ["${default}", "${workspaceFolder}/ncurses-1.0.0/C"],
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:/msys64/mingw64/include",
+        "C:\\msys64\\mingw64\\include\\ncurses"
+      ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
-      "windowsSdkVersion": "10.0.22000.0",
-      "intelliSenseMode": "windows-msvc-x64"
+      "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-gcc-x64"
     }
   ],
   "version": 4

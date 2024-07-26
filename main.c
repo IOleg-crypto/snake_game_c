@@ -9,13 +9,17 @@
 #include <process.h>
 #include <curses.h>
 
-typedef struct Snake
-{
-  
-} Snake;
-
 int main(int argc , char **argv)
 {
-    NCURSES_CXX_MAIN(argc,argv);
+    int screen_width = 80;
+    int screen_height = 25;
+
+    initscr();
+    curs_set(0);
+    noecho();
+    cbreak();
+    srand(time(NULL));
+    
+    
     return 0;
 }
