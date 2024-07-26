@@ -1,0 +1,7 @@
+examples/*/bin
+examples/*/dub.selections.json
+
+*.o
+*.so
+*.a
+.dub
