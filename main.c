@@ -7,10 +7,11 @@
 #include <process.h>
 #include <ncurses.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 // constants
-#define SCREEN_WIDTH 25
-#define SCREEN_HEIGHT 15
+#define SCREEN_WIDTH 60
+#define SCREEN_HEIGHT 40
 #define MAX_SCORE 256
 #define FRAME_TIME 110000
 
@@ -18,9 +19,19 @@ typedef struct {
     int x, y;
 } Vector2D;
 
-Vector2D segments[256];
+//global variables
+Vector2D segments[MAX_SCORE + 1];
 int score = 0;
 WINDOW *win;
+ // snake parts
+Vector2D head = {0, 0};
+Vector2D dir = {1, 0};
+// berry
+Vector2D berry;
+//score
+char score_message[15];
+// game state
+bool is_running = true;
 
 void update_snake_position(Vector2D *head, Vector2D dir) {
     head->x += dir.x;
@@ -61,22 +72,71 @@ void init(int width , int height) {
     win = newwin(height, width * 2, 0, 0);
     keypad(win, TRUE);
     nodelay(win, TRUE);
+    
+     // initialize color
+    if (has_colors() == FALSE) {
+        endwin();
+        fprintf(stderr, "Your terminal does not support color\n");
+        exit(1);
+    }
+    start_color();
+    use_default_colors();
+    init_pair(1, COLOR_RED, -1);
+    init_pair(2, COLOR_GREEN, -1);
+    init_pair(3, COLOR_YELLOW, -1);
+
+
+    berry.x = rand() % width;
+    berry.y = rand() % height;
+
+    // update score message
+    sprintf(score_message, "[ Score: %d ]", score);
 }
 
-int main(int argc, char **argv) {
-    //init screen
-    init(SCREEN_HEIGHT , SCREEN_WIDTH);
-    // snake parts
-    Vector2D head = {0, 0};
-    Vector2D dir = {1, 0};
+void quit_game()
+{
+     // exit cleanly from application
+    endwin();
+    // clear screen, place cursor on top, and un-hide cursor
+    printf("\e[1;1H\e[2J");
+    printf("\e[?25h");
 
-    // berry
-    Vector2D berry = {rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT};
+    exit(0);
+}
 
-    // game loop
-    while (true) {
-        // pressed key
-        int pressed = wgetch(win);
+void restart_game() {
+    head.x = 0;
+    head.y = 0;
+    dir.x = 1;
+    dir.y = 0;
+    score = 0;
+    sprintf(score_message, "[ Score: %d ]", score);
+    is_running = true;
+}
+
+void draw_border(int y, int x, int width, int height) {
+    // top row
+    mvaddch(y, x, ACS_ULCORNER);
+    mvaddch(y, x + width * 2 + 1, ACS_URCORNER);
+    for (int i = 1; i < width * 2 + 1; i++) {
+        mvaddch(y, x + i, ACS_HLINE);
+    }
+    // vertical lines
+    for (int i = 1; i < height + 1; i++) {
+        mvaddch(y + i, x, ACS_VLINE);
+        mvaddch(y + i, x + width * 2 + 1, ACS_VLINE);
+    }
+    // bottom row
+    mvaddch(y + height + 1, x, ACS_LLCORNER);
+    mvaddch(y + height + 1, x + width * 2 + 1, ACS_LRCORNER);
+    for (int i = 1; i < width * 2 + 1; i++) {
+        mvaddch(y + height + 1, x + i, ACS_HLINE);
+    }
+}
+
+void input_keyboard(WINDOW *win)
+{
+     int pressed = wgetch(win);
         switch (pressed) {
             case KEY_UP:
                 dir.x = 0;
@@ -111,10 +171,21 @@ int main(int argc, char **argv) {
                 dir.y = 0;
                 break;
             case 'e':
-                endwin();
-                exit(0);
+                quit_game();
+                break;
+            case 'q':
+                restart_game();
+                break;
+                
         }
-
+}
+int main(int argc, char **argv) {
+    //init screen
+    init(SCREEN_HEIGHT , SCREEN_WIDTH);
+    // game loop
+    while (true) {
+        // pressed key
+        input_keyboard(win);
         update_snake_position(&head, dir);
 
         //--draw snake--
