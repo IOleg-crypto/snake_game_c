@@ -11,7 +11,7 @@
 
 // constants
 #define SCREEN_WIDTH 60
-#define SCREEN_HEIGHT 40
+#define SCREEN_HEIGHT 25
 #define MAX_SCORE 256
 #define FRAME_TIME 110000
 
@@ -19,19 +19,16 @@ typedef struct {
     int x, y;
 } Vector2D;
 
-//global variables
-Vector2D segments[MAX_SCORE + 1];
-int score = 0;
-WINDOW *win;
- // snake parts
-Vector2D head = {0, 0};
-Vector2D dir = {1, 0};
-// berry
-Vector2D berry;
-//score
-char score_message[15];
-// game state
-bool is_running = true;
+typedef struct {
+    Vector2D segments[MAX_SCORE + 1];
+    int score;
+    WINDOW *win;
+    Vector2D head;
+    Vector2D dir;
+    Vector2D berry;
+    char score_message[15];
+    bool is_running;
+} GameState;
 
 void update_snake_position(Vector2D *head, Vector2D dir) {
     head->x += dir.x;
@@ -39,29 +36,29 @@ void update_snake_position(Vector2D *head, Vector2D dir) {
 }
 
 void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
-    for (int i = 0; i < score; i++) {
-        mvwaddch(win, segments[i].y, segments[i].x *7 , 'o');
-    }
     mvwaddch(win, head.y, head.x * 2, 'O');
+    for (int i = 0; i < score; i++) {
+        mvwaddch(win, segments[i].y, segments[i].x * 2, 'o');
+    }
 }
 
 void draw_berry(WINDOW *win, Vector2D berry) {
-    mvwaddch(win, berry.y, berry.x * 2, '@');
+     mvwaddch(win, berry.y, berry.x * 2, '*');
 }
 
 void check_boundaries(Vector2D *head, int width, int height) {
-     if (head->x >= width * 2) 
-         head->x = 0;
+    if (head->x >= width * 2) 
+        head->x = 0;
     else if (head->x < 0) 
         head->x = width - 1;
-    if (head->y >= height * 2) 
+    if (head->y >= height) 
         head->y = 0;
     else if (head->y < 0) 
         head->y = height - 1;
 }
 
-void init(int width , int height) {
-   // initialise screen
+void init(GameState *state, int width, int height) {
+    // initialise screen
     initscr();
     cbreak();
     noecho();
@@ -69,11 +66,12 @@ void init(int width , int height) {
     srand(time(NULL));
 
     // set up window
-    win = newwin(height, width * 2, 0, 0);
-    keypad(win, TRUE);
-    nodelay(win, TRUE);
+    state->win = initscr();
+    scrollok(state->win, TRUE);
+    keypad(state->win, TRUE);
+    nodelay(state->win, TRUE);
     
-     // initialize color
+    // initialize color
     if (has_colors() == FALSE) {
         endwin();
         fprintf(stderr, "Your terminal does not support color\n");
@@ -85,17 +83,15 @@ void init(int width , int height) {
     init_pair(2, COLOR_GREEN, -1);
     init_pair(3, COLOR_YELLOW, -1);
 
-
-    berry.x = rand() % width;
-    berry.y = rand() % height;
+    state->berry.x = rand() % width;
+    state->berry.y = rand() % height;
 
     // update score message
-    sprintf(score_message, "[ Score: %d ]", score);
+    sprintf(state->score_message, "[ Score: %d ]", state->score);
 }
 
-void quit_game()
-{
-     // exit cleanly from application
+void quit_game() {
+    // exit cleanly from application
     endwin();
     // clear screen, place cursor on top, and un-hide cursor
     printf("\e[1;1H\e[2J");
@@ -104,14 +100,14 @@ void quit_game()
     exit(0);
 }
 
-void restart_game() {
-    head.x = 0;
-    head.y = 0;
-    dir.x = 1;
-    dir.y = 0;
-    score = 0;
-    sprintf(score_message, "[ Score: %d ]", score);
-    is_running = true;
+void restart_game(GameState *state) {
+    state->head.x = 0;
+    state->head.y = 0;
+    state->dir.x = 1;
+    state->dir.y = 0;
+    state->score = 0;
+    sprintf(state->score_message, "[ Score: %d ]", state->score);
+    state->is_running = true;
 }
 
 void draw_border(int y, int x, int width, int height) {
@@ -134,78 +130,97 @@ void draw_border(int y, int x, int width, int height) {
     }
 }
 
-void input_keyboard(WINDOW *win)
-{
-     int pressed = wgetch(win);
-        switch (pressed) {
-            case KEY_UP:
-                dir.x = 0;
-                dir.y = -1;
-                break;
-            case KEY_DOWN:
-                dir.x = 0;
-                dir.y = 1;
-                break;
-            case KEY_LEFT:
-                dir.x = -1;
-                dir.y = 0;
-                break;
-            case KEY_RIGHT:
-                dir.x = 1;
-                dir.y = 0;
-                break;
-            case 'w':
-                dir.x = 0;
-                dir.y = -1;
-                break;
-            case 's':
-                dir.x = 0;
-                dir.y = 1;
-                break;
-            case 'a':
-                dir.x = -1;
-                dir.y = 0;
-                break;
-            case 'd':
-                dir.x = 1;
-                dir.y = 0;
-                break;
-            case 'e':
-                quit_game();
-                break;
-            case 'q':
-                restart_game();
-                break;
-                
-        }
+void input_keyboard(GameState *state) {
+    int pressed = wgetch(state->win);
+    switch (pressed) {
+        case KEY_UP:
+            state->dir.x = 0;
+            state->dir.y = -1;
+            break;
+        case KEY_DOWN:
+            state->dir.x = 0;
+            state->dir.y = 1;
+            break;
+        case KEY_LEFT:
+            state->dir.x = -1;
+            state->dir.y = 0;
+            break;
+        case KEY_RIGHT:
+            state->dir.x = 1;
+            state->dir.y = 0;
+            break;
+        case 'w':
+            state->dir.x = 0;
+            state->dir.y = -1;
+            break;
+        case 's':
+            state->dir.x = 0;
+            state->dir.y = 1;
+            break;
+        case 'a':
+            state->dir.x = -1;
+            state->dir.y = 0;
+            break;
+        case 'd':
+            state->dir.x = 1;
+            state->dir.y = 0;
+            break;
+        case 'e':
+            quit_game();
+            break;
+        case 'q':
+            restart_game(state);
+            break;
+    }
 }
+
+void collide_berry_and_snake(GameState *state) {
+    state->score += 1;
+    state->berry.x = rand() % SCREEN_WIDTH / 4;
+    state->berry.y = rand() % SCREEN_HEIGHT / 4;
+}
+
 int main(int argc, char **argv) {
-    //init screen
-    init(SCREEN_HEIGHT , SCREEN_WIDTH);
+    GameState state = {
+        .score = 0,
+        .head = {0, 0},
+        .dir = {1, 0},
+        .is_running = true
+    };
+
+    init(&state, SCREEN_WIDTH, SCREEN_HEIGHT);
+
     // game loop
     while (true) {
         // pressed key
-        input_keyboard(win);
-        update_snake_position(&head, dir);
-
+        input_keyboard(&state);
+        update_snake_position(&state.head, state.dir);
+        
+        // update segments
+        for (int i = state.score; i > 0; i--) {
+            state.segments[i].x = state.segments[i - 1].x;
+            state.segments[i].y = state.segments[i - 1].y;
+        }
+        state.segments[0].x = state.head.x;
+        state.segments[0].y = state.head.y;
+        
         //--draw snake--
-        werase(win);
-        draw_berry(win, berry);
-        draw_snake(win, head, segments, score);
+        werase(state.win);
+        draw_border(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        draw_berry(state.win, state.berry);
+        draw_snake(state.win, state.head, state.segments, state.score);
 
-        if (head.x == berry.x && head.y == berry.y) {
-            score += 1;
-            berry.x = rand() % SCREEN_WIDTH / 4;
-            berry.y = rand() % SCREEN_HEIGHT / 4;
+        if (state.head.x == state.berry.x && state.head.y == state.berry.y) {
+            collide_berry_and_snake(&state);
         }
 
-        mvwprintw(win, 0, 0, "Score: %d", score);
+        mvwprintw(state.win, 0, 0, "Score: %d", state.score);
 
         // check screen boundaries
-        check_boundaries(&head, SCREEN_WIDTH, SCREEN_HEIGHT);
+        check_boundaries(&state.head, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        wrefresh(win);
-        usleep(100000);
+        wrefresh(state.win);
+        usleep(FRAME_TIME);
     }
 
     endwin();
