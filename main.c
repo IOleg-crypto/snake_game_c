@@ -9,16 +9,18 @@
 #include <unistd.h>
 
 // constants
-#define SCREEN_WIDTH 100
-#define SCREEN_HEIGHT 100
+#define SCREEN_WIDTH 25
+#define SCREEN_HEIGHT 15
+#define MAX_SCORE 256
+#define FRAME_TIME 110000
 
 typedef struct {
     int x, y;
 } Vector2D;
 
 Vector2D segments[256];
-
 int score = 0;
+WINDOW *win;
 
 void update_snake_position(Vector2D *head, Vector2D dir) {
     head->x += dir.x;
@@ -27,9 +29,9 @@ void update_snake_position(Vector2D *head, Vector2D dir) {
 
 void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
     for (int i = 0; i < score; i++) {
-        mvwaddch(win, segments[i].y, segments[i].x * 2, 'o');
+        mvwaddch(win, segments[i].y, segments[i].x *7 , 'o');
     }
-    mvwaddch(win, head.y, head.x * 2, '0');
+    mvwaddch(win, head.y, head.x * 2, 'O');
 }
 
 void draw_berry(WINDOW *win, Vector2D berry) {
@@ -37,14 +39,18 @@ void draw_berry(WINDOW *win, Vector2D berry) {
 }
 
 void check_boundaries(Vector2D *head, int width, int height) {
-    if (head->x >= width * 2) head->x = 0;
-    else if (head->x < 0) head->x = width - 1;
-    if (head->y >= height * 2) head->y = 0;
-    else if (head->y < 0) head->y = height - 1;
+     if (head->x >= width * 2) 
+         head->x = 0;
+    else if (head->x < 0) 
+        head->x = width - 1;
+    if (head->y >= height * 2) 
+        head->y = 0;
+    else if (head->y < 0) 
+        head->y = height - 1;
 }
 
-int main(int argc, char **argv) {
-    // initialise screen
+void init(int width , int height) {
+   // initialise screen
     initscr();
     cbreak();
     noecho();
@@ -52,10 +58,14 @@ int main(int argc, char **argv) {
     srand(time(NULL));
 
     // set up window
-    WINDOW *win = newwin(SCREEN_HEIGHT, SCREEN_WIDTH * 2, 0, 0);
+    win = newwin(height, width * 2, 0, 0);
     keypad(win, TRUE);
     nodelay(win, TRUE);
+}
 
+int main(int argc, char **argv) {
+    //init screen
+    init(SCREEN_HEIGHT , SCREEN_WIDTH);
     // snake parts
     Vector2D head = {0, 0};
     Vector2D dir = {1, 0};
@@ -114,8 +124,8 @@ int main(int argc, char **argv) {
 
         if (head.x == berry.x && head.y == berry.y) {
             score += 1;
-            berry.x = rand() % SCREEN_WIDTH;
-            berry.y = rand() % SCREEN_HEIGHT;
+            berry.x = rand() % SCREEN_WIDTH / 4;
+            berry.y = rand() % SCREEN_HEIGHT / 4;
         }
 
         mvwprintw(win, 0, 0, "Score: %d", score);
