@@ -2,116 +2,131 @@
 #include <time.h>
 #include <stdlib.h>
 #include <conio.h>
-#include <time.h>
 #include <ctype.h>
 #include <windows.h>
 #include <process.h>
-#include <curses.h>
+#include <ncurses.h>
 #include <unistd.h>
-//constants
-#define SCREEN_WIDTH 80
-#define SCREEN_HEIGHT 25
 
-typedef struct
-{
-     int x , y;
+// constants
+#define SCREEN_WIDTH 100
+#define SCREEN_HEIGHT 100
+
+typedef struct {
+    int x, y;
 } Vector2D;
 
 Vector2D segments[256];
 
 int score = 0;
 
-int main(int argc , char **argv)
-{
-    //initialise screen
-    WINDOW *win = initscr();
-    
-    //take player input
-    keypad(win, true);
-    nodelay(win, true);
+void update_snake_position(Vector2D *head, Vector2D dir) {
+    head->x += dir.x;
+    head->y += dir.y;
+}
+
+void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
+    for (int i = 0; i < score; i++) {
+        mvwaddch(win, segments[i].y, segments[i].x * 2, 'o');
+    }
+    mvwaddch(win, head.y, head.x * 2, '0');
+}
+
+void draw_berry(WINDOW *win, Vector2D berry) {
+    mvwaddch(win, berry.y, berry.x * 2, '@');
+}
+
+void check_boundaries(Vector2D *head, int width, int height) {
+    if (head->x >= width * 2) head->x = 0;
+    else if (head->x < 0) head->x = width - 1;
+    if (head->y >= height * 2) head->y = 0;
+    else if (head->y < 0) head->y = height - 1;
+}
+
+int main(int argc, char **argv) {
+    // initialise screen
+    initscr();
+    cbreak();
+    noecho();
     curs_set(0);
     srand(time(NULL));
-    
-    //snake parts
-    Vector2D head = {0 , 0};
-    Vector2D dir = {1 , 0};
-    
-    //berry
-    Vector2D berry = {rand() % SCREEN_WIDTH , rand() % SCREEN_HEIGHT};
-    
-    //game loop
-    while (true)
-    {
-        //pressed key
+
+    // set up window
+    WINDOW *win = newwin(SCREEN_HEIGHT, SCREEN_WIDTH * 2, 0, 0);
+    keypad(win, TRUE);
+    nodelay(win, TRUE);
+
+    // snake parts
+    Vector2D head = {0, 0};
+    Vector2D dir = {1, 0};
+
+    // berry
+    Vector2D berry = {rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT};
+
+    // game loop
+    while (true) {
+        // pressed key
         int pressed = wgetch(win);
-        switch (pressed){
+        switch (pressed) {
             case KEY_UP:
-              dir.x = 0;
-              dir.y = -1;
-              break;
+                dir.x = 0;
+                dir.y = -1;
+                break;
             case KEY_DOWN:
-              dir.x = 0;
-              dir.y = 1;
-              break;
+                dir.x = 0;
+                dir.y = 1;
+                break;
             case KEY_LEFT:
-              dir.x = -1;
-              dir.y = 0;
-              break;
+                dir.x = -1;
+                dir.y = 0;
+                break;
             case KEY_RIGHT:
-              dir.x = 1;
-              dir.y = 0;
-              break;
+                dir.x = 1;
+                dir.y = 0;
+                break;
             case 'w':
-              dir.x = 0;
-              dir.y = -1;
-              break;
+                dir.x = 0;
+                dir.y = -1;
+                break;
             case 's':
-              dir.x = 0;
-              dir.y = 1;
-              break;
+                dir.x = 0;
+                dir.y = 1;
+                break;
             case 'a':
-              dir.x = -1;
-              dir.y = 0;
-              break;
+                dir.x = -1;
+                dir.y = 0;
+                break;
             case 'd':
-              dir.x = 1;
-              dir.y = 0;
-              break; 
+                dir.x = 1;
+                dir.y = 0;
+                break;
             case 'e':
-              exit(0);
+                endwin();
+                exit(0);
         }
-        head.x += dir.x;
-        head.y += dir.y;
-        
+
+        update_snake_position(&head, dir);
+
         //--draw snake--
-        
-        erase();
-        mvaddch(berry.y, berry.x * 2, '@');
-        
-        //make snake length
-        for (int i = 0; i < score; i++)
-        {
-            mvaddch(segments[i].y, segments[i].x *2 , 'o');
-        }
-        mvaddch(head.y, head.x, '0');
-        if (head.x == berry.x && head.y == berry.y)
-        {
+        werase(win);
+        draw_berry(win, berry);
+        draw_snake(win, head, segments, score);
+
+        if (head.x == berry.x && head.y == berry.y) {
             score += 1;
             berry.x = rand() % SCREEN_WIDTH;
             berry.y = rand() % SCREEN_HEIGHT;
         }
-        
-        mvprintw(0, 0, "Score: %d" , score);
-        
-    
-        //check screen boundaries
-        if (head.x >= SCREEN_WIDTH) head.x = 0;
-        else if (head.x < 0) head.x = SCREEN_WIDTH - 1;
-        if (head.y >= SCREEN_HEIGHT) head.y = 0;
-        else if (head.y < 0) head.y = SCREEN_HEIGHT - 1;
-          
+
+        mvwprintw(win, 0, 0, "Score: %d", score);
+
+        // check screen boundaries
+        check_boundaries(&head, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        wrefresh(win);
         usleep(100000);
     }
+
     endwin();
     return 0;
 }
