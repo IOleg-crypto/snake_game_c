@@ -14,6 +14,9 @@
 #define SCREEN_HEIGHT 25
 #define MAX_SCORE 256
 #define FRAME_TIME 110000
+#define BERRY_COLOR 1
+#define SNAKE_COLOR 2
+#define BACKGROUND_COLOR 3
 
 typedef struct {
     int x, y;
@@ -36,18 +39,22 @@ void update_snake_position(Vector2D *head, Vector2D dir) {
 }
 
 void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
+    wattron(win, COLOR_PAIR(SNAKE_COLOR));
     mvwaddch(win, head.y, head.x * 2, 'O');
     for (int i = 0; i < score; i++) {
         mvwaddch(win, segments[i].y, segments[i].x * 2, 'o');
     }
+    wattroff(win, COLOR_PAIR(SNAKE_COLOR));
 }
 
 void draw_berry(WINDOW *win, Vector2D berry) {
+     wattron(win, COLOR_PAIR(BERRY_COLOR));
      mvwaddch(win, berry.y, berry.x * 2, '*');
+     wattron(win, COLOR_PAIR(BERRY_COLOR));
 }
 
 void check_boundaries(Vector2D *head, int width, int height) {
-    if (head->x >= width * 2) 
+    if (head->x >= width) 
         head->x = 0;
     else if (head->x < 0) 
         head->x = width - 1;
@@ -78,12 +85,14 @@ void init(GameState *state, int width, int height) {
         exit(1);
     }
     start_color();
-    use_default_colors();
-    init_pair(1, COLOR_RED, -1);
-    init_pair(2, COLOR_GREEN, -1);
-    init_pair(3, COLOR_YELLOW, -1);
+    //use_default_colors();
+    init_pair(BERRY_COLOR, COLOR_RED, -1);
+    init_pair(SNAKE_COLOR, COLOR_GREEN, COLOR_BLACK);
+    init_pair(BACKGROUND_COLOR, COLOR_BLACK, COLOR_WHITE);
+    //bkgd(COLOR_PAIR(BACKGROUND_COLOR));
+    //wbkgd(state->win, COLOR_PAIR(BACKGROUND_COLOR));
 
-    state->berry.x = rand() % width;
+    state->berry.x = rand() % width * 2;
     state->berry.y = rand() % height;
 
     // update score message
@@ -110,7 +119,9 @@ void restart_game(GameState *state) {
     state->is_running = true;
 }
 
-void draw_border(int y, int x, int width, int height) {
+void draw_border(int y, int x, int width, int height ) {
+    init_pair(BACKGROUND_COLOR, COLOR_BLACK, COLOR_WHITE);
+    
     // top row
     mvaddch(y, x, ACS_ULCORNER);
     mvaddch(y, x + width * 2 + 1, ACS_URCORNER);
@@ -123,9 +134,12 @@ void draw_border(int y, int x, int width, int height) {
         mvaddch(y + i, x + width * 2 + 1, ACS_VLINE);
     }
     // bottom row
+    attron(COLOR_PAIR(BACKGROUND_COLOR));
     mvaddch(y + height + 1, x, ACS_LLCORNER);
     mvaddch(y + height + 1, x + width * 2 + 1, ACS_LRCORNER);
+    attron(COLOR_PAIR(BACKGROUND_COLOR));
     for (int i = 1; i < width * 2 + 1; i++) {
+        attron(COLOR_PAIR(BACKGROUND_COLOR));
         mvaddch(y + height + 1, x + i, ACS_HLINE);
     }
 }
@@ -175,6 +189,8 @@ void input_keyboard(GameState *state) {
 }
 
 void collide_berry_and_snake(GameState *state) {
+    init_pair(BERRY_COLOR, COLOR_RED, -1);
+    attron(COLOR_PAIR(BERRY_COLOR));
     state->score += 1;
     state->berry.x = rand() % SCREEN_WIDTH / 4;
     state->berry.y = rand() % SCREEN_HEIGHT / 4;
