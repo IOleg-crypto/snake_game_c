@@ -50,7 +50,7 @@ void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
 void draw_berry(WINDOW *win, Vector2D berry) {
      wattron(win, COLOR_PAIR(BERRY_COLOR));
      mvwaddch(win, berry.y, berry.x * 2, '*');
-     wattron(win, COLOR_PAIR(BERRY_COLOR));
+     wattroff(win, COLOR_PAIR(BERRY_COLOR));
 }
 
 void check_boundaries(Vector2D *head, int width, int height) {
@@ -89,11 +89,10 @@ void init(GameState *state, int width, int height) {
     init_pair(BERRY_COLOR, COLOR_RED, -1);
     init_pair(SNAKE_COLOR, COLOR_GREEN, COLOR_BLACK);
     init_pair(BACKGROUND_COLOR, COLOR_BLACK, COLOR_WHITE);
-    //bkgd(COLOR_PAIR(BACKGROUND_COLOR));
-    //wbkgd(state->win, COLOR_PAIR(BACKGROUND_COLOR));
 
-    state->berry.x = rand() % width * 2;
-    state->berry.y = rand() % height;
+    state->berry.x = rand() % (width - 1);
+    state->berry.y = rand() % (height - 1);
+
 
     // update score message
     sprintf(state->score_message, "[ Score: %d ]", state->score);
@@ -192,8 +191,8 @@ void collide_berry_and_snake(GameState *state) {
     init_pair(BERRY_COLOR, COLOR_RED, -1);
     attron(COLOR_PAIR(BERRY_COLOR));
     state->score += 1;
-    state->berry.x = rand() % SCREEN_WIDTH / 4;
-    state->berry.y = rand() % SCREEN_HEIGHT / 4;
+    state->berry.x = rand() % (SCREEN_WIDTH - 1); // Ensure within width bounds
+    state->berry.y = rand() % (SCREEN_HEIGHT - 1); // Ensure within height bounds
 }
 
 int main(int argc, char **argv) {
