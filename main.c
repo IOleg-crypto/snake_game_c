@@ -39,18 +39,30 @@ void update_snake_position(Vector2D *head, Vector2D dir) {
 }
 
 void draw_snake(WINDOW *win, Vector2D head, Vector2D *segments, int score) {
+    // Set the color for the snake
     wattron(win, COLOR_PAIR(SNAKE_COLOR));
-    mvwaddch(win, head.y, head.x * 2, 'O');
+    
+    // Draw the snake segments
     for (int i = 0; i < score; i++) {
-        mvwaddch(win, segments[i].y, segments[i].x * 2, 'o');
+        mvwaddch(win, segments[i].y, segments[i].x * 2, ACS_DIAMOND);
     }
+    
+    // Draw the snake head
+    mvwaddch(win, head.y, head.x * 2, 'O');
+    
+    // Turn off the color for the snake
     wattroff(win, COLOR_PAIR(SNAKE_COLOR));
 }
 
 void draw_berry(WINDOW *win, Vector2D berry) {
-     wattron(win, COLOR_PAIR(BERRY_COLOR));
-     mvwaddch(win, berry.y, berry.x * 2, '*');
-     wattroff(win, COLOR_PAIR(BERRY_COLOR));
+    // Set the color for the berry
+    wattron(win, COLOR_PAIR(BERRY_COLOR));
+    
+    // Draw the berry
+    mvwaddch(win, berry.y, berry.x * 2, '*');
+    
+    // Turn off the color for the berry
+    wattroff(win, COLOR_PAIR(BERRY_COLOR));
 }
 
 void check_boundaries(Vector2D *head, int width, int height) {
@@ -86,12 +98,14 @@ void init(GameState *state, int width, int height) {
     }
     start_color();
     //use_default_colors();
-    init_pair(BERRY_COLOR, COLOR_RED, -1);
-    init_pair(SNAKE_COLOR, COLOR_GREEN, COLOR_BLACK);
+    init_pair(BERRY_COLOR,COLOR_RED , COLOR_BLACK);
+    init_pair(SNAKE_COLOR, COLOR_GREEN , COLOR_BLACK);
     init_pair(BACKGROUND_COLOR, COLOR_BLACK, COLOR_WHITE);
 
-    state->berry.x = rand() % (width - 1);
-    state->berry.y = rand() % (height - 1);
+    attron(COLOR_PAIR(BERRY_COLOR));
+    state->berry.x = rand() % (width - 3);
+    state->berry.y = rand() % (height - 3);
+    attron(COLOR_PAIR(BERRY_COLOR));
 
 
     // update score message
@@ -191,8 +205,9 @@ void collide_berry_and_snake(GameState *state) {
     init_pair(BERRY_COLOR, COLOR_RED, -1);
     attron(COLOR_PAIR(BERRY_COLOR));
     state->score += 1;
-    state->berry.x = rand() % (SCREEN_WIDTH - 1); // Ensure within width bounds
-    state->berry.y = rand() % (SCREEN_HEIGHT - 1); // Ensure within height bounds
+    state->berry.x = rand() % (SCREEN_WIDTH - 3); // Ensure within width bounds
+    state->berry.y = rand() % (SCREEN_HEIGHT - 3); // Ensure within height bounds
+    attron(COLOR_PAIR(BERRY_COLOR));
 }
 
 int main(int argc, char **argv) {
