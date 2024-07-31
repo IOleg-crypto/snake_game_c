@@ -1,49 +1,46 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Build Snake Game",
-      "type": "shell",
-      "args": [
-        "/c",
-        "C:\\msys64\\mingw64\\bin\\gcc.exe",
-        "-fdiagnostics-color=always",
-        "-g",
-        "-I",
-        "C:/msys64/mingw64/include",
-        "-I",
-        "C:/msys64/mingw64/include/ncurses",
-        "D:/gitnext/snake_game_c/main.c",
-        "-o",
-        "D:/gitnext/snake_game_c/main.exe",
-        "-L",
-        "C:/msys64/mingw64/lib",
-        "-lncurses"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build Snake Game",
+        "type": "shell",
+        "command": "C:/msys64/mingw64/bin/gcc.exe",
+        "args": [
+          "-fdiagnostics-color=always",
+          "-g",
+          "D:/gitnext/snake_game_c/main.c",
+          "-I", "C:/msys64/mingw64/include",
+          "-I", "C:/msys64/mingw64/include/ncurses",
+          "-L", "C:/msys64/mingw64/lib",
+          "-lncurses",
+          "-lncursesw",
+          "-o", "D:/gitnext/snake_game_c/snake_game.exe" 
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"],
+        "detail": "Generated task by user."
       },
-      "problemMatcher": ["$gcc"],
-      "detail": "Generated task by user."
-    },
-    {
-      "type": "cppbuild",
-      "label": "C/C++: gcc.exe сборка активного файла",
-      "command": "C:/msys64/mingw64/bin/gcc.exe",
-      "args": [
-        "-fdiagnostics-color=always",
-        "-g",
-        "${file}",
-        "-o",
-        "${fileDirname}\\${fileBasenameNoExtension}.exe"
-      ],
-      "options": {
-        "cwd": "C:/msys64/mingw64/bin"
-      },
-      "problemMatcher": ["$gcc"],
-      "group": "build",
-      "detail": "компилятор: C:/msys64/mingw64/bin/gcc.exe"
-    }
-  ]
-}
+      {
+        "type": "cppbuild",
+        "label": "C/C++: gcc.exe build active file",
+        "command": "C:/msys64/mingw64/bin/gcc.exe",
+        "args": [
+          "-fdiagnostics-color=always",
+          "-g",
+          "${file}",
+          "-o",
+          "${fileDirname}/${fileBasenameNoExtension}.exe"
+        ],
+        "options": {
+          "cwd": "C:/msys64/mingw64/bin"
+        },
+        "problemMatcher": ["$gcc"],
+        "group": "build",
+        "detail": "compiler: C:/msys64/mingw64/bin/gcc.exe"
+      }
+    ]
+  }
+  
