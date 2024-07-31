@@ -75,6 +75,12 @@ Don`t forget update paths in shell script to complie program
 ./build.sh
 ```
 
+## if working in Visual Studio Code
+
+![alt text](image-1.png)
+
+press **CTRL+SHIFT+B** or **CTRL+SHIRT+P** -> Run Build Task
+
 # Usage
 
 ```bash
