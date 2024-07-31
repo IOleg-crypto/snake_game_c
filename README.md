@@ -79,7 +79,7 @@ Don`t forget update paths in shell script to complie program
 
 ![alt text](image-1.png)
 
-press **CTRL+SHIFT+B** or **CTRL+SHIRT+P** -> Run Build Task
+press **CTRL+SHIFT+B** or **CTRL+SHIFT+P** -> Run Build Task
 
 # Usage
 
