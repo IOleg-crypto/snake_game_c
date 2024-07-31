@@ -68,6 +68,9 @@ cd snake_game_c
 
 2. Compile the project:
 
+![alt text](image.png)
+Don`t forget update paths in shell script to complie program
+
 ```bash
 ./build.sh
 ```
